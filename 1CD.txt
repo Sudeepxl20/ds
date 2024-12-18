@@ -1,0 +1,219 @@
+Input
+
+
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_INPUT_SIZE 1000
+#define MAX_LINE_SIZE 100
+#define MAX_TOKENS 100
+
+int main() {
+    int i = 0, j, k, o, c, sy, kw, already_exists, is_keyword;
+    int keyword_index = 0, variable_index = 0, constant_index = 0, operator_index = 0, symbol_index = 0;
+    char s[MAX_INPUT_SIZE] = " ";
+    char g[MAX_LINE_SIZE];
+    char keywords[MAX_TOKENS][20];
+    char variables[MAX_TOKENS][20];
+    char constants[MAX_TOKENS][20];
+    char operators[MAX_TOKENS];
+    char symbols[MAX_TOKENS];
+    char constant[20];
+    char word[20];
+    const char *keyword_list[] = {
+        "int", "float", "if", "else", "while", "return", "for", "break", "continue", "char",
+        "double", "void", "do", "switch", "case", "default", "goto", "main"
+    };
+    const int keyword_count = sizeof(keyword_list) / sizeof(keyword_list[0]);
+    const char operator_list[] = "+-=/><";
+    const char *symbol_list = ";,(){}[]";
+
+    printf("Enter program and type $ to terminate \n");
+
+    // Reading program input until '$' is encountered
+    while (1) {
+        if (!fgets(g, sizeof(g), stdin)) break;
+        if (g[strlen(g) - 1] == '\n') g[strlen(g) - 1] = '\0';
+        if (strcmp(g, "$") == 0) break;
+        if (strlen(s) + strlen(g) >= MAX_INPUT_SIZE - 1) {
+            printf("Error: Input too long!\n");
+            return 1;
+        }
+        strcat(s, g);
+        strcat(s, " ");
+    }
+
+    // Main logic to parse the string and categorize tokens
+    i = 0;
+    while (s[i] != '\0') {
+        already_exists = 0;
+        is_keyword = 0;
+
+        // Detect constants (numbers)
+        if (isdigit(s[i])) {
+            j = i;
+            while (isdigit(s[i])) i++;
+            strncpy(constant, &s[j], i - j);
+            constant[i - j] = '\0';
+
+            // Check if constant is already added
+            for (c = 0; c < constant_index; c++) {
+                if (strcmp(constants[c], constant) == 0) {
+                    already_exists = 1;
+                    break;
+                }
+            }
+            if (!already_exists) {
+                strcpy(constants[constant_index++], constant);
+            }
+        }
+
+        // Detect keywords and variables (words starting with a letter)
+        else if (isalpha(s[i])) {
+            j = i;
+            while (isalnum(s[i]) || s[i] == '_') i++;
+            strncpy(word, &s[j], i - j);
+            word[i - j] = '\0';
+
+            // Check if word is a keyword
+            for (k = 0; k < keyword_count; k++) {
+                if (strcmp(word, keyword_list[k]) == 0) {
+                    is_keyword = 1;
+                    break;
+                }
+            }
+
+            // If it's a keyword
+            if (is_keyword) {
+                // Check if it's already in the keywords array
+                for (kw = 0; kw < keyword_index; kw++) {
+                    if (strcmp(keywords[kw], word) == 0) {
+                        already_exists = 1;
+                        break;
+                    }
+                }
+                if (!already_exists) {
+                    strcpy(keywords[keyword_index++], word);
+                }
+            }
+            // If it's not a keyword, it's a variable
+            else {
+                already_exists = 0;
+                for (k = 0; k < variable_index; k++) {
+                    if (strcmp(variables[k], word) == 0) {
+                        already_exists = 1;
+                        break;
+                    }
+                }
+                if (!already_exists) {
+                    strcpy(variables[variable_index++], word);
+                }
+            }
+        }
+
+        // Detect operators
+        else if (strchr(operator_list, s[i])) {
+            already_exists = 0;
+            for (o = 0; o < operator_index; o++) {
+                if (operators[o] == s[i]) {
+                    already_exists = 1;
+                    break;
+                }
+            }
+            if (!already_exists) {
+                operators[operator_index++] = s[i];
+            }
+        }
+
+        // Detect symbols (punctuation marks)
+        else if (strchr(symbol_list, s[i])) {
+            already_exists = 0;
+            for (sy = 0; sy < symbol_index; sy++) {
+                if (symbols[sy] == s[i]) {
+                    already_exists = 1;
+                    break;
+                }
+            }
+            if (!already_exists) {
+                symbols[symbol_index++] = s[i];
+            }
+        }
+        i++;
+    }
+    printf("different types of tokens in given program");
+    // Printing out categorized tokens
+    printf("\nKeywords:\n");
+    for (k = 0; k < keyword_index; k++) {
+        printf("%s\n", keywords[k]);
+    }
+    printf("\nVariables:\n");
+    for (k = 0; k < variable_index; k++) {
+        printf("%s\n", variables[k]);
+    }
+    printf("\nConstants:\n");
+    for (k = 0; k < constant_index; k++) {
+        printf("%s\n", constants[k]);
+    }
+    printf("\nOperators:\n");
+    for (k = 0; k < operator_index; k++) {
+        printf("%c\n", operators[k]);
+    }
+    printf("\nSymbols:\n");
+    for (k = 0; k < symbol_index; k++) {
+        printf("%c\n", symbols[k]);
+    }
+
+    return 0;
+}
+
+
+Run code 
+(give code  in output) 
+
+Int main() {
+Int a =10;
+Float b=3.14;
+If(a>b) {
+a=a+1;
+}
+} 
+$ 
+
+
+Output
+
+Enter program and type $ to terminate 
+Int main() {
+Int a =10;
+Float b=3.14;
+If(a>b) {
+a=a+1;
+}
+} 
+$
+different types of tokens in given program
+Keywords:
+main
+
+Variables:
+Int
+a
+Float
+b
+If
+
+Constants:
+10
+3
+14
+1
+
+Operators:
+=
+
+Symbols:
+)
+{
+}
+
